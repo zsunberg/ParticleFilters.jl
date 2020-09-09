@@ -8,7 +8,7 @@ using POMDPSimulators
 using POMDPModelTools
 using Random
 using Distributions
-using NBInclude
+import Pkg
 
 struct P <: POMDP{Nothing, Nothing, Nothing} end
 ParticleFilters.obs_weight(::P, ::Nothing, ::Nothing, ::Nothing, ::Nothing) = 1.0
@@ -96,27 +96,19 @@ end
     @test isapprox(value(policy, b), -29.4557)
 end
 
+cd("../notebooks/") do
+    Pkg.activate(".")
+    Pkg.instantiate()
 
-is_ci = get(ENV, "CI", "false") == "true"
-is_travis = get(ENV, "TRAVIS", "false") == "true"
-
-@show is_ci
-@show is_travis
-
-@warn("Notebook smoke testing is disabled on JuliaCI. We should re-enable it asap")
-
-if !is_ci || is_travis
     @testset "data series" begin
-        cd("../notebooks") do
-            @nbinclude("../notebooks/Filtering-a-Trajectory-or-Data-Series.ipynb")
-        end
+        include("../notebooks/Filtering-a-Trajectory-or-Data-Series.jl")
     end
 
     @testset "feedback" begin
-        @nbinclude("../notebooks/Using-a-Particle-Filter-for-Feedback-Control.ipynb"; softscope=true)
+        include("../notebooks/Using-a-Particle-Filter-for-Feedback-Control.jl")
     end
 
     @testset "pomdps" begin
-        @nbinclude("../notebooks/Using-a-Particle-Filter-with-POMDPs-jl.ipynb")
+        include("../notebooks/Using-a-Particle-Filter-with-POMDPs-jl.jl")
     end
 end
